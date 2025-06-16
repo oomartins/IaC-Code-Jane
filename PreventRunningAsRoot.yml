@@ -1,0 +1,37 @@
+#  Sample Gatekeeper policy that prevents running a container as root
+------
+
+# Constraint Template 
+  apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredrunasnonroot
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredRunAsNonRoot
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredrunasnonroot
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.securityContext.runAsNonRoot
+          msg := sprintf("Container %v must have runAsNonRoot=true", [container.name])
+        }
+
+---------
+
+# Enforcement Rule 
+
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredRunAsNonRoot
+metadata:
+  name: require-runasnonroot
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
