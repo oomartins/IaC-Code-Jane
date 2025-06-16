@@ -1,0 +1,28 @@
+Below is an example secure EKS configuration- A user is granted Read Only Access to a namespace named PHI.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: phi
+  name: pod-reader
+rules:
+- apiGroups: [""] 
+  resources: ["pods"]
+  verbs: ["get","list"]
+
+---
+# RoleBinding 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: phi
+subjects:
+- kind: ServiceAccount
+  name: readonly-user
+  namespace: phi
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+
