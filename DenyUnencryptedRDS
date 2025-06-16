@@ -1,0 +1,23 @@
+# Example SCP to prevent creation of unencrypted AWS RDS instances and Elastic Cache
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyUnencryptedPHIResource",
+      "Effect": "Deny",
+      "Action": [
+        "rds:CreateDBInstance",
+        "elasticache:CreateCacheCluster"
+      ],
+      
+      "Resource": "*",
+      "Condition": {
+        "StringNotEqualsIfExists": {
+          "rds:StorageEncrypted": "true",
+          "elasticache:TransitEncryptionEnabled": "true"
+        }
+      }
+    }
+  ]
+}
